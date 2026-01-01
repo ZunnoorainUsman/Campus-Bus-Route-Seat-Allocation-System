@@ -164,7 +164,9 @@ int main()
 
     }
     else if(startingPoint == 'K' || startingPoint == 'k' )
-
+    {
+        
+    }
 
     return 0;
 }
