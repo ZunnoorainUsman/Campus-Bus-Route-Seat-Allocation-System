@@ -1321,6 +1321,109 @@ Print Row: Show all the details in one line.
         case 10:
         {
             cout << "Validate Records & Detect Conflicts selected." << endl;
+            cout << "Scanning System for Errors..." << endl;
+            cout << "------------------------------------------------" << endl;
+
+            int ErrorCount = 0;
+
+            // Check for Duplicate Seats.
+            // We compare every Allocation against every other Allocation.
+
+            for (int allocationAgainstOtherAllocationCounter = 0; allocationAgainstOtherAllocationCounter < 200; allocationAgainstOtherAllocationCounter++)
+            {
+                if (AllocationID[allocationAgainstOtherAllocationCounter] != -1)
+                {
+                    // If the slot is active.
+                    for (int checkSlotLoopCounter = allocationAgainstOtherAllocationCounter + 1; checkSlotLoopCounter < 200; checkSlotLoopCounter++)
+                    {
+                        // Check against all Subsequent Slots.
+                        if (AllocationID[checkSlotLoopCounter] != -1)
+                        {
+                            // Conflict Rule: Same Bus AND Same Seat
+                            if (BusIDAllocation[allocationAgainstOtherAllocationCounter] == BusIDAllocation[checkSlotLoopCounter] && SeatNumber[allocationAgainstOtherAllocationCounter] == SeatNumber[checkSlotLoopCounter])
+                            {
+                                cout << "Duplicate Seat Found!" << endl;
+                                cout << "Allocation ID: " << AllocationID[allocationAgainstOtherAllocationCounter] << " and " << AllocationID[checkSlotLoopCounter] << endl;
+                                cout << "Bus ID: " << BusIDAllocation[allocationAgainstOtherAllocationCounter] << ", Seat: " << SeatNumber[allocationAgainstOtherAllocationCounter] << endl;
+                                ErrorCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Check for Invalid Bus Assignments
+
+            for (int invalidBusAssignmentsCounter = 0; invalidBusAssignmentsCounter < 200; invalidBusAssignmentsCounter++)
+            {
+                if (AllocationID[invalidBusAssignmentsCounter] != -1)
+                {
+                    bool BusExists = false;
+                    // Check if the student's assigned bus actually exists in our BusID array
+
+                    for (int busExistsCounter = 0; busExistsCounter < 6; busExistsCounter++)
+                    {
+                        if (BusID[busExistsCounter] == BusIDAllocation[invalidBusAssignmentsCounter])
+                        {
+                            BusExists = true;
+                            break;
+                        }
+                    }
+
+                    if (!BusExists)
+                    {
+                        cout << "Error! Invalid Bus Assignment!" << endl;
+                        cout << "Allocation ID " << AllocationID[invalidBusAssignmentsCounter] << " is assigned to Bus " << BusIDAllocation[invalidBusAssignmentsCounter] << " which does not exist." << endl;
+                        ErrorCount++;
+                    }
+                }
+            }
+
+            // Check Capacity Limits
+
+            for (int capacityLimits = 0; capacityLimits < 6; capacityLimits++)
+            {
+                if (BusID[capacityLimits] != -1)
+                {
+                    // Counting actual students on this bus.
+                    int ActualCount = 0;
+                    for (int actualCounter = 0; actualCounter < 200; actualCounter++)
+                    {
+                        if (AllocationID[actualCounter] != -1 && BusIDAllocation[actualCounter] == BusID[capacityLimits])
+                        {
+                            ActualCount++;
+                        }
+                    }
+
+                    // Comparing Real Count vs System Count vs Capacity.
+                    if (ActualCount > BusCapacity[capacityLimits])
+                    {
+                        cout << "Critical, Bus Overloaded!" << endl;
+                        cout << "Bus " << BusID[capacityLimits] << " has " << ActualCount << " students but the Capacity is " << BusCapacity[capacityLimits] << endl;
+                        ErrorCount++;
+                    }
+
+                    // Also Checking if our Bus Selected Seats counter is out of sync
+                    if (ActualCount != BusSelectedSeats[capacityLimits])
+                    {
+                        cout << "Warning, Seat Counter Sync Error." << endl;
+                        cout << "Bus " << BusID[capacityLimits] << ": Counter says " << BusSelectedSeats[capacityLimits] << ", but actual records are " << ActualCount << endl;
+                        // Auto-fix could go here: BusSelectedSeats[b] = actualCount;
+                        ErrorCount++;
+                    }
+                }
+            }
+
+            if (ErrorCount == 0)
+            {
+                cout << "System is Healthy. No Conflicts has been found." << endl;
+            }
+            else
+            {
+                cout << "------------------------------------------------" << endl;
+                cout << "Scan Complete. Found " << ErrorCount << " issues." << endl;
+            }
+            cout << endl;
         }
         break;
         case 11:
