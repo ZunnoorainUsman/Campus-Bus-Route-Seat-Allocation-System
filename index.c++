@@ -999,57 +999,57 @@ Print Row: Show all the details in one line.
             }
 
             // Check if Seat has been taken by someone else.
-            
-                bool SeatTaken = false;
-                for (int seatTakenCounter = 0; seatTakenCounter < 200; seatTakenCounter++)
-                {
-                    if (seatTakenCounter != FoundIndex && AllocationID[seatTakenCounter] != -1 && BusIDAllocation[seatTakenCounter] == TempBusID && SeatNumber[seatTakenCounter] == TempSeatNumber)
-                    {
-                        SeatTaken = true;
-                        break;
-                    }
-                }
 
-                if (SeatTaken)
+            bool SeatTaken = false;
+            for (int seatTakenCounter = 0; seatTakenCounter < 200; seatTakenCounter++)
+            {
+                if (seatTakenCounter != FoundIndex && AllocationID[seatTakenCounter] != -1 && BusIDAllocation[seatTakenCounter] == TempBusID && SeatNumber[seatTakenCounter] == TempSeatNumber)
                 {
-                    cout << "Error: Seat " << TempSeatNumber << " is already occupied on Bus " << TempBusID << "." << endl;
+                    SeatTaken = true;
                     break;
                 }
+            }
 
-                // Fee Status
+            if (SeatTaken)
+            {
+                cout << "Error: Seat " << TempSeatNumber << " is already occupied on Bus " << TempBusID << "." << endl;
+                break;
+            }
 
-                cout << "Enter Fee Status ( 0 = Unpaid, 1 = Paid ): ";
-                cin >> TempFeeStatus;
+            // Fee Status
 
-                if (TempFeeStatus != 0 && TempFeeStatus != 1)
-                {
-                    TempFeeStatus = 0;
-                }
+            cout << "Enter Fee Status ( 0 = Unpaid, 1 = Paid ): ";
+            cin >> TempFeeStatus;
 
-                // Now Saving Record.
+            if (TempFeeStatus != 0 && TempFeeStatus != 1)
+            {
+                TempFeeStatus = 0;
+            }
 
-                if (OldBusIndex != -1)
-                {
-                    // Remove from Old bus.
-                    BusSelectedSeats[OldBusIndex]--;
-                    
-                }
-            
-                // Add to new Bus.
-                BusSelectedSeats[OldBusIndex]++;
+            // Now Saving Record.
 
-                // Updating database
+            if (OldBusIndex != -1)
+            {
+                // Remove from Old bus.
+                BusSelectedSeats[OldBusIndex]--;
 
-                RouteIDAllocation[FoundIndex] = TempRouteID;
-                BusIDAllocation[FoundIndex] = TempBusID;
-                SeatNumber[FoundIndex] = TempFeeStatus;
-                FeeStatus[FoundIndex] = TempFeeStatus;
+            }
 
-                cout << endl;
-                cout << "==========================================================" << endl;
-                cout << "         Allocation Record Updated Successfully!          " << endl;
-                cout << "==========================================================" << endl;
-                cout << endl;
+            // Add to new Bus.
+            BusSelectedSeats[OldBusIndex]++;
+
+            // Updating database
+
+            RouteIDAllocation[FoundIndex] = TempRouteID;
+            BusIDAllocation[FoundIndex] = TempBusID;
+            SeatNumber[FoundIndex] = TempFeeStatus;
+            FeeStatus[FoundIndex] = TempFeeStatus;
+
+            cout << endl;
+            cout << "==========================================================" << endl;
+            cout << "         Allocation Record Updated Successfully!          " << endl;
+            cout << "==========================================================" << endl;
+            cout << endl;
 
 
         }
@@ -1148,6 +1148,69 @@ Print Row: Show all the details in one line.
         case 9:
         {
             cout << "Display Bus Seat Occupancy View selected." << endl;
+            int TargetBus;
+            cout << "Enter the Bus ID to view: ";
+            cin >> TargetBus;
+
+            //Now we will 1st fine the capacity of bus
+            int Capacity = -1;
+            for (int capacityCounter = 0; capacityCounter < 6; ++capacityCounter)
+            {
+                if (BusID[capacityCounter] == TargetBus)
+                {
+                    Capacity = BusCapacity[capacityCounter];//that will make sure that the bus we r searching exists or not
+                    break;
+                }
+            }
+            if (Capacity == -1)//means that no bus is assigned
+            {
+                cout << "Bus not found!" << endl;
+                break;
+            }
+            cout << endl;
+            cout << "--Seat Map for Bus " << TargetBus << " --" << endl;
+            cout << " [XX] = occupied, [No] = Available" << endl;
+
+            // Now we will check all the seats
+            for(int seatCounter = 1 ; seatCounter <= Capacity ;seatCounter++)
+            {
+                bool SeatOccupied = false;
+                for (int allocationCounter = 0; allocationCounter < 200; allocationCounter++)
+                {
+                    if (AllocationID[allocationCounter] != -1 && BusIDAllocation[allocationCounter] == TargetBus
+                        && SeatNumber[allocationCounter] == seatCounter)
+                    {
+                        SeatOccupied = true;
+                        break;
+                    }
+                }
+                if (SeatOccupied)
+                {
+                    cout << "[XX] ";//that means its occupied
+                }
+                else
+                {
+                    if (seatCounter < 10)
+                    {
+                        cout << "[0" << seatCounter << "] ";//Will print 03 insted of 3
+                    }
+                    else {
+                        cout << "[" << seatCounter << "] ";
+                    }
+                }
+
+                if (seatCounter % 4 == 0) // 4 seats per row with space that means 2 seats then walking path then again 2 seats
+                {
+                    cout << endl; // new row after every 4 seats
+                }
+                else if (seatCounter % 2 == 0) {  // space after 2 seats
+                    cout << "   ";
+                }
+            }
+            cout <<endl;
+            cout << endl;
+
+            
         }
         break;
         case 10:
@@ -1173,6 +1236,3 @@ Print Row: Show all the details in one line.
     return 0;
 
 }
-
-
-
